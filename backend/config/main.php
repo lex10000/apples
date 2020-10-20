@@ -13,8 +13,27 @@ return [
     'bootstrap' => ['log'],
     'modules' => [],
     'components' => [
+        'assetManager' => [
+            'bundles' => [
+                'backend\assets\ReactAsset' => [
+                    'sourcePath' => null,
+                    'js' => [
+                        !YII_ENV_DEV ? 'https://unpkg.com/react@16/umd/react.production.min.js' : 'https://unpkg.com/react@16/umd/react.development.js',
+                        !YII_ENV_DEV ? 'https://unpkg.com/react-dom@16/umd/react-dom.production.min.js': "https://unpkg.com/react-dom@16/umd/react-dom.development.js"
+                    ],
+                    'jsOptions' => [
+                        'crossorigin' => true
+                    ]
+                ]
+            ],
+            'appendTimestamp' => true,
+            'linkAssets' => true,
+        ],
         'request' => [
             'csrfParam' => '_csrf-backend',
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ]
         ],
         'user' => [
             'identityClass' => 'common\models\User',

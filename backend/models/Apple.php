@@ -17,6 +17,13 @@ use yii\base\Exception;
  */
 class Apple extends \yii\db\ActiveRecord
 {
+    const STATUS_EATEN = 'eaten';
+    const STATUS_OVERHEAD= 'overhead';
+    const STATUS_NOT_PICKED = 'not picked';
+    const STATUS_NOT_FOUND = 'not found';
+    const STATUS_EATED_PARTIAL = 'eated partial';
+    public array $colors = ['green', 'red', 'yellow', 'orange'];
+
     public static function tableName()
     {
         return 'apple';
@@ -25,10 +32,56 @@ class Apple extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['created_at'], 'required'],
-            [['created_at', 'dropped_at', 'status'], 'integer'],
-            [['color'], 'string', 'max' => 100],
-            ['percent', 'integer', 'max' => 100, 'min'=> 0],
+            ['percent', 'integer', 'max' => 1, 'min'=> 0.1],
         ];
+    }
+
+    public function generateApple() :array
+    {
+       $this->color = $this->colors[array_rand($this->colors)];
+       $this->created_at = mt_rand(1, time());
+       $this->status = 0;
+       $this->percent = 0;
+       $this->save(false);
+       return $this->toArray();
+    }
+
+    public static function getApples() :?array
+    {
+        return self::find()->asArray()->all();
+    }
+
+    public function pick(int $apple_id) :bool
+    {
+        $apple = self::findOne($apple_id);
+        if($apple) {
+            $apple->status = 1;
+            $apple->dropped_at = time();
+            return $apple->save(false);
+        } else return false;
+    }
+
+    public function eatApple(int $apple_id, float $percent) :string
+    {
+        $apple = self::findOne($apple_id);
+        if($apple) {
+            if($apple->status==0) {
+                return self::STATUS_NOT_PICKED;
+            }
+            if($this->validate($percent)) {
+                $apple->percent = intval($apple->percent + $percent*100);
+                if($apple->percent == 100) {
+                    $apple->delete();
+                    return self::STATUS_EATEN;
+                } elseif ($apple->percent > 100) {
+                    return self::STATUS_OVERHEAD;
+                }
+                else {
+                    $apple->save(false);
+                    return self::STATUS_EATED_PARTIAL;
+                }
+            }
+
+        } else return self::STATUS_NOT_FOUND;
     }
 }
