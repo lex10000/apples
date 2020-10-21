@@ -26,7 +26,16 @@ class Apple extends \yii\db\ActiveRecord
     const MESSAGE_STATUS_NOT_FOUND = 8;
     const MESSAGE_STATUS_EATED_PARTIAL = 7;
 
-    public array $colors = ['green', 'red', 'yellow', 'orange'];
+    /**
+     * @var string[]
+     */
+    private $colors;
+
+    public function __construct($config = [])
+    {
+        $this->colors = ['green', 'red', 'yellow', 'orange'];
+        parent::__construct($config);
+    }
 
     public static function tableName()
     {
