@@ -6,6 +6,8 @@ export default class Tree extends React.Component {
         this.generateApples = this.generateApples.bind(this);
         this.pickApple = this.pickApple.bind(this);
         this.eatApple = this.eatApple.bind(this);
+        this.deleteApple = this.deleteApple.bind(this);
+        this.markAsRotten = this.markAsRotten.bind(this);
         this.state = {
             apples: [],
             isLoaded: false
@@ -29,10 +31,11 @@ export default class Tree extends React.Component {
             })
     }
 
-    pickApple(id) {
+    pickApple(id, dropped_at) {
         let apples = this.state.apples;
         let i =  apples.findIndex(apple => apple.id === id);
         apples[i].status = 1;
+        apples[i].dropped_at = dropped_at;
         this.setState({apples})
     }
 
@@ -46,6 +49,20 @@ export default class Tree extends React.Component {
             console.log(123);
             apples.splice(i, 1);
         }
+        this.setState({apples});
+    }
+
+    deleteApple(id) {
+        let apples = this.state.apples;
+        let i =  apples.findIndex(apple => apple.id === id);
+        apples.splice(i, 1);
+        this.setState({apples});
+    }
+
+    markAsRotten(id) {
+        let apples = this.state.apples;
+        let i =  apples.findIndex(apple => apple.id === id);
+        apples[i].status = '2';
         this.setState({apples});
     }
 
@@ -81,6 +98,8 @@ export default class Tree extends React.Component {
                                 key={apple.id}
                                 pickApple={this.pickApple}
                                 eatApple={this.eatApple}
+                                deleteApple={this.deleteApple}
+                                markAsRotten={this.markAsRotten}
                             />)
                         })}
                     </div>

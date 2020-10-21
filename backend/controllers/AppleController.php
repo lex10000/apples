@@ -16,7 +16,7 @@ class AppleController extends Controller
     {
         if(Yii::$app->request->isPost) {
             $apples = [];
-            for ($i=0;$i<10;$i++) {
+            for ($i=0;$i<5;$i++) {
                 $apple = new Apple();
                 $apples[$i] = $apple->generateApple();
             }
@@ -47,9 +47,10 @@ class AppleController extends Controller
     {
         $apple_id = intval(Yii::$app->request->post('id'));
         $apple = new Apple();
-        if($apple->pick($apple_id)) {
+        if($dropped_at = $apple->pick($apple_id)) {
             return $this->asJson([
-                'status' => 'success'
+                'status' => 'success',
+                'dropped_at' => $dropped_at
             ]);
         }
     }
@@ -67,5 +68,38 @@ class AppleController extends Controller
         return $this->asJson([
             'status' => $status
         ]);
+    }
+
+    /**
+     * Удалить яблоко из таблицы (когда полностью съедено)
+     * @return \yii\web\Response
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public function actionDeleteApple()
+    {
+        $apple_id = intval(Yii::$app->request->post('id'));
+        $apple = Apple::findOne($apple_id);
+        if($apple) {
+            if($apple->delete()) {
+                return $this->asJson([
+                    'status' => 'success'
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Пометить яблоко как испорченное
+     * @return \yii\web\Response
+     */
+    public function actionMarkAsRotten()
+    {
+        $apple_id = intval(Yii::$app->request->post('id'));
+        if((new Apple())->markAsRotten($apple_id)) {
+            return $this->asJson([
+                'status' => 'success'
+            ]);
+        }
     }
 }
